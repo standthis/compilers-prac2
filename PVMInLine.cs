@@ -431,7 +431,8 @@ namespace Assem {
             tos = mem[cpu.sp++]; mem[cpu.sp] *= tos;
             break;
           case PVM.div:           // integer division (quotient)
-            tos = mem[cpu.sp++]; mem[cpu.sp] /= tos;
+	    if (tos != 0) tos = mem[cpu.sp++]; mem[cpu.sp] /= tos;
+	    else ps = divZero;
             break;
           case PVM.rem:           // integer division (remainder)
             tos = mem[cpu.sp++]; mem[cpu.sp] %= tos;
