@@ -1,0 +1,59 @@
+                          ; try adding high level comments
+                          ; and for a start include your names
+   0   DSP      3	  ; ref to list is var 0, ref to i is var 1; ref to n is var 2 
+   2   LDA      0	  ; push adr of list    
+   4   LDC      10	  ; push size of list array 
+   6   ANEW		  ; allocate storage for new list 
+   7   STO		  ; store adr of list[0] as "value" of var list 
+   8   LDA      1	  ; push adr of i 
+  10   LDC      0	  ; push contant 0 onto stack
+  12   STO		  ; i = 0
+  13   LDA      2	  ; push adr of n 
+  15   INPI		  ; read integer, store in adr popped from TOS 
+  16   LDA      2         ; push adr of n  		
+  18   LDV		  ; dereference n -- value of n is on TOS 
+  19   LDC      0         ; push contant 0 onto stack
+  21   CNE	 	  ; check if n != 0
+  22   LDA      1	  ; push adr of i
+  24   LDV		  ; deference i -- value of i on TOS
+  25   LDC      10	  ; push constant 10 onto stack
+  27   CLT	          ; check if i < max 		
+  28   AND		  ; check for both conditions, pop result onto stack
+  29   BZE      56	  ; exit when false to instruction 56 
+  31   LDA      0	  ; push adr of list 
+  33   LDV	          ; deference -- adr of list[0] at TOS
+  34   LDA      1	  ; push adr of i
+  36   LDV	          ; deference i -- value of i on TOS
+  37   LDXA	          ; calculate adr of list[i] as new TOS 
+  38   LDA      2	  ; push adr of n 
+  40   LDV		  ; deference n -- value of n on TOS 
+  41   STO	          ; list[i] = n 
+  42   LDA      1	  ; push adr of i 
+  44   LDA      1	  ; push adr of i 
+  46   LDV		  ; deference i -- valuue of i on TOS 
+  47   LDC      1	  ; push contant 1 onto stack
+  49   ADD		  ; pop TOS and SOS, push sum to new TOS 
+  50   STO		  ; i++
+  51   LDA      2	  ; push adr of n 
+  53   INPI	   	  ; read integer, store in adr popped from TOS 
+  54   BRN      16 	  ; Jump to instruction 16
+  56   LDA      1	  ; push adr of i 
+  58   LDV 		  ; dereference i -- value of i on TOS
+  59   LDC      0         ; push contant 0 onto stack
+  61   CGT		  ; pop SOS and TOS, push 1 if sos > tos, 0 otherwise
+  62   BZE      84	  ; exit if false to 84
+  64   LDA      1	  ; push adr of i 
+  66   LDA      1	  ; push adr of i 
+  68   LDV		  ; dereference i, push as TOS
+  69   LDC      1	  ; push constant 1 onto stack
+  71   SUB		  ; push TOS and SOS, substract TOS from SOS, push difference as TOS
+  72   STO		  ; i--
+  73   LDA      0	  ; push adr of list 
+  75   LDV	          ; dereference -- adr of list[0] as new TOS
+  76   LDA      1	  ; push adr of i 
+  78   LDV	  	  ; dereference i -- value of i is on TOS
+  79   LDXA	 	  ; calculate adr of list[i] as new TOS
+  80   LDV		  ; deference list[i] -- value of list[i] on TOS 
+  81   PRNI	 	  ; Pop tos and write to output as an integer 
+  82   BRN      56	  ; jump to instruction 56 
+  84   HALT		  ; Terminate execution 
