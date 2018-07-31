@@ -477,10 +477,17 @@ namespace Assem {
             tos = Pop(); Push(Pop() - tos);
             break;
           case PVM.mul:           // integer multiplication
-            tos = Pop(); Push(Pop() * tos);
+            //tos = Pop(); Push(Pop() * tos);
+			tos = Pop(); 
+			int prod = Pop(); 
+			if (tos > 0 && prod > 2147483647 / tos) Push(tos*prod);
+			else ps = badVal;
             break;
           case PVM.div:           // integer division (quotient)
-            tos = Pop(); Push(Pop() / tos);
+            //tos = Pop(); Push(Pop() / tos);
+			tos = Pop(); 
+			if (tos != 0) Push(Pop() / tos);
+			else ps = divZero;
             break;
           case PVM.rem:           // integer division (remainder)
             tos = Pop(); Push(Pop() % tos);

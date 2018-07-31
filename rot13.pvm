@@ -1,0 +1,32 @@
+							; palin 
+   0   DSP      1	  		; // vars -- 0:ch
+   2   LDA      0
+   4   INPC					; read(ch)
+   5   LDA		0
+   7   LDV
+   8   LOW 					; ch = lower(ch)
+   9   LDA 	    0
+   11  LDV
+   12  ISLET				; ch = lower(ch)
+   13  BZE      33 			; if (isLetter(ch))
+   15  LDA      0
+   17  LDA		0
+   19  LDV 
+   20  LDC 		97
+   22  SUB      
+   23  LDC 		13 
+   25  ADD 
+   26  LDC 		26 
+   28  REM
+   29  LDC      97
+   31  ADD
+   32  STO 					; ch = (char) ('a' + (ch - 'a' + 13) % 26)
+   33  LDA    	1
+   35  LDV 		
+   36  PRNC					; write(ch)
+   37  LDA      1
+   39  LDV
+   40  LDC      46 			; '.'
+   42  CEQ					
+   43  BZE 		2			; until (ch == '.')
+   45  HALT 

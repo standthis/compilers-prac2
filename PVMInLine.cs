@@ -389,8 +389,14 @@ namespace Assem {
             tos = mem[cpu.sp++]; mem[mem[cpu.sp++]] = tos;
             break;
           case PVM.ldxa:          // heap array indexing
-            tos = mem[cpu.sp++]; mem[cpu.sp] = mem[cpu.sp] + tos;
-            break;
+            //tos = mem[cpu.sp++]; mem[cpu.sp] = mem[cpu.sp] + tos;
+            tos = mem[cpu.sp++]; 
+			int heapPtr = mem[cpu.sp];
+			if (heapPtr == 0) ps = nullRef;
+			else if (heapPtr < heapBase || heapPtr >= cpu.hp) ps = badMem;
+			else if (tos < 0 || tos >= mem[heapPtr]) ps = badInd;
+			else mem[cpu.sp] = mem[cpu.sp] + tos + 1;
+			break;
           case PVM.inpi:          // integer input
             mem[mem[cpu.sp++]] = data.ReadInt();
             break;
@@ -428,11 +434,15 @@ namespace Assem {
             tos = mem[cpu.sp++]; mem[cpu.sp] -= tos;
             break;
           case PVM.mul:           // integer multiplication
-            tos = mem[cpu.sp++]; mem[cpu.sp] *= tos;
-            break;
+            //tos = mem[cpu.sp++]; mem[cpu.sp] *= tos;
+			tos = mem[cpu.sp++]; 
+			if (tos > 0 && mem[cpu.sp] > 2147483647 / tos) mem[cpu.sp] *= tos;
+			else ps = badVal;
+			break;
           case PVM.div:           // integer division (quotient)
-	    if (tos != 0) tos = mem[cpu.sp++]; mem[cpu.sp] /= tos;
-	    else ps = divZero;
+			tos = mem[cpu.sp++]; 
+			if (tos != 0) mem[cpu.sp] /= tos;			
+			else ps = divZero;
             break;
           case PVM.rem:           // integer division (remainder)
             tos = mem[cpu.sp++]; mem[cpu.sp] %= tos;
@@ -486,32 +496,88 @@ namespace Assem {
             HeapDump(results, pcNow);
             break;
           case PVM.ldc_0:         // push constant 0
-          case PVM.ldc_1:         // push constant 1
-          case PVM.ldc_2:         // push constant 2
-          case PVM.ldc_3:         // push constant 3
-          case PVM.lda_0:         // push local address 0
-          case PVM.lda_1:         // push local address 1
-          case PVM.lda_2:         // push local address 2
-          case PVM.lda_3:         // push local address 3
-          case PVM.ldl:           // push local value
-          case PVM.ldl_0:         // push value of local variable 0
-          case PVM.ldl_1:         // push value of local variable 1
+			mem[--cpu.sp] = 0;
+			break;
+		  case PVM.ldc_1:         // push constant 1
+			mem[--cpu.sp] = 1;
+			break;
+		  case PVM.ldc_2:         // push constant 2
+			mem[--cpu.sp] = 2;
+			break;
+		  case PVM.ldc_3:         // push constant 3
+			mem[--cpu.sp] = 3;
+			break;
+		  case PVM.lda_0:         // push local address 0
+			mem[--cpu.sp] = cpu.fp - 1 - 0;
+			break;
+		  case PVM.lda_1:         // push local address 1
+			mem[--cpu.sp] = cpu.fp - 1 - 1;
+			break;
+		  case PVM.lda_2:         // push local address 2
+          	mem[--cpu.sp] = cpu.fp - 1 - 2;
+			break;
+		  case PVM.lda_3:         // push local address 3
+			mem[--cpu.sp] = cpu.fp - 1 - 3;
+			break;
+		  case PVM.ldl:           // push local value
+			mem[--cpu.sp] = mem[cpu.fp - 1 - mem[cpu.pc++]];
+			break;
+		  case PVM.ldl_0:         // push value of local variable 0
+			mem[--cpu.sp] = mem[cpu.fp - 1 - 0];
+			break;			
+		  case PVM.ldl_1:         // push value of local variable 1
+			mem[--cpu.sp] = mem[cpu.fp - 1 - 1];
+			break;	
           case PVM.ldl_2:         // push value of local variable 2
+			mem[--cpu.sp] = mem[cpu.fp - 1 - 2];
+			break;	
           case PVM.ldl_3:         // push value of local variable 3
+			mem[--cpu.sp] = mem[cpu.fp - 1 - 3];
+			break;	
           case PVM.stl:           // store local value
+			mem[cpu.fp - 1 - mem[cpu.pc++]] = mem[cpu.sp++];
+			break;
           case PVM.stlc:          // store local value
           case PVM.stl_0:         // pop to local variable 0
+			mem[cpu.fp - 1 - mem[0]] = mem[cpu.sp++];
+			break;
           case PVM.stl_1:         // pop to local variable 1
+			mem[cpu.fp - 1 - mem[1]] = mem[cpu.sp++];
+			break;
           case PVM.stl_2:         // pop to local variable 2
-          case PVM.stl_3:         // pop to local variable 3
-          case PVM.stoc:          // character checked store
+			mem[cpu.fp - 1 - mem[2]] = mem[cpu.sp++];
+			break;
+		  case PVM.stl_3:         // pop to local variable 3
+          	mem[cpu.fp - 1 - mem[3]] = mem[cpu.sp++];
+			break;
+		  case PVM.stoc:          // character checked store
           case PVM.inpc:          // character input
-          case PVM.prnc:          // character output
+			//mem[mem[cpu.sp++]] = data.ReadChar();
+			char c = data.ReadChar();
+			int numeric = c + 0;
+			mem[mem[cpu.sp++]] = numeric;  
+			break;
+		  case PVM.prnc:          // character output			
+			results.Write((char) mem[cpu.sp++]);
+			break;
           case PVM.cap:           // toUpperCase
           case PVM.low:           // toLowerCase
+			mem[cpu.sp] = Char.ToLower((char)mem[cpu.sp]);
+			break;
           case PVM.islet:         // isLetter
+			tos = mem[cpu.sp++];
+			mem[cpu.sp] = Char.IsLetter((char) tos) ? 1 : 0;
+			break;
           case PVM.inc:           // ++
+			// need to account for special case
+			tos = mem[cpu.sp++];
+			mem[cpu.sp] += 1;
+			break;
           case PVM.dec:           // --
+			// need to account for special case
+			tos = mem[cpu.sp++];
+			mem[cpu.sp] -= 1;
+			break;			
           default:                // unrecognized opcode
             ps = badOp;
             break;
